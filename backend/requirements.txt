@@ -1,0 +1,42 @@
+# --- Core framework ---
+fastapi==0.115.0
+uvicorn[standard]==0.32.0          # ASGI server to actually run FastAPI
+
+# --- Config & environment ---
+pydantic==2.9.2
+pydantic-settings==2.6.0           # for config.py — loads .env cleanly
+python-dotenv==1.0.1
+
+# --- Agent orchestration ---
+langgraph==0.2.45
+langchain-core==0.3.15             # needed alongside langgraph for message/state types
+langchain-groq==0.2.0              # Groq integration for LangChain/LangGraph
+
+# --- LLM client (direct, if you bypass LangChain anywhere) ---
+groq==0.11.0
+
+# --- Database ---
+supabase==2.9.1                    # Supabase Python client (wraps postgrest + auth)
+postgrest>=0.17.0,<0.18.0          # compatible with supabase 2.9.1
+
+# --- Payments ---
+razorpay==1.4.2                    # official Razorpay Python SDK
+
+# --- Synthetic data ---
+Faker==30.8.2
+
+# --- Metrics (Risk Manager track only — skip if pure Revenue Recovery) ---
+scikit-learn==1.5.2
+numpy==2.1.3
+
+# --- PDF generation (Risk Manager only — skip if pure Revenue Recovery) ---
+reportlab==4.2.5
+
+# --- Testing ---
+pytest==8.3.3
+pytest-asyncio==0.24.0
+httpx==0.27.2                      # needed for FastAPI TestClient + async requests
+
+# --- Dev quality (small, but signals maturity to panel) ---
+black==24.10.0                     # formatter
+ruff==0.7.3                        # linter
