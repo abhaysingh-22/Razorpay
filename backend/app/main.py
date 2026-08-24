@@ -1,59 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import time
-import sys
-import platform
-from datetime import datetime
+from app.api.v1.router import api_router
 
-app = FastAPI(
-    title="Razorpay Recovery & Risk Manager API",
-    description="Backend API for Razorpay Agentic AI System",
-    version="1.0.0",
-)
+app = FastAPI(title="AI Revenue Recovery")
 
-# Enable CORS for frontend development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["*"],   # tighten this to your frontend URL before final submission
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-START_TIME = time.time()
+app.include_router(api_router)
 
 @app.get("/")
-def read_root():
-    return {
-        "service": "Razorpay Agentic AI Backend",
-        "status": "online",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-        "docs_url": "/docs",
-    }
-
-@app.get("/api/health")
 def health_check():
-    uptime_seconds = round(time.time() - START_TIME, 2)
-    return {
-        "status": "healthy",
-        "uptime_seconds": uptime_seconds,
-        "environment": {
-            "python_version": sys.version.split()[0],
-            "platform": platform.platform(),
-        },
-        "modules": {
-            "fastapi": "0.115.0",
-            "langgraph": "0.2.45",
-            "groq": "available",
-            "supabase": "configured",
-            "razorpay": "ready"
-        },
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-    }
+    return {"status": "ok", "service": "ai-revenue-recovery"}
 
-@app.get("/api/ping")
-def ping():
-    return {
-        "message": "pong",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-    }
