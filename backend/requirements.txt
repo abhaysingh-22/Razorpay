@@ -16,8 +16,8 @@ langchain-groq==0.2.0              # Groq integration for LangChain/LangGraph
 groq==0.11.0
 
 # --- Database ---
-supabase==2.9.1                    # Supabase Python client (wraps postgrest + auth)
-postgrest>=0.17.0,<0.18.0          # compatible with supabase 2.9.1
+supabase==2.31.0                    # Supabase Python client (wraps postgrest + auth)
+postgrest==2.31.0                  # compatible with supabase 2.31.0
 
 # --- Payments ---
 razorpay==1.4.2                    # official Razorpay Python SDK
