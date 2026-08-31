@@ -29,7 +29,7 @@ export function Dashboard() {
     setLoading(false);
   };
 
-  if (!summary) return <div className="p-8 text-gray-400">Loading...</div>;
+  const showEmptyState = summary === null;
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-6">
@@ -38,13 +38,21 @@ export function Dashboard() {
         <Button onClick={handleRunBatch} loading={loading}>Run Recovery Batch</Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <RecoveryMetricsCard summary={summary} />
-        <KeyHighlights summary={summary} />
-      </div>
+      {showEmptyState ? (
+        <div className="p-8 text-center text-gray-400 border border-dashed border-gray-700 rounded-xl">
+          No recovery batches run yet. Click "Run Recovery Batch" to start.
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <RecoveryMetricsCard summary={summary} />
+            <KeyHighlights summary={summary} />
+          </div>
 
-      <RecoveryRateByReason summary={summary} />
-      <AuditTrailTable attempts={attempts} />
+          <RecoveryRateByReason summary={summary} />
+          <AuditTrailTable attempts={attempts} />
+        </>
+      )}
     </div>
   );
 }
