@@ -31,4 +31,11 @@ export interface BatchSummary {
   key_highlights: string[];
   exceptions: string[];
   created_at: string;
+  roi_metrics?: {
+    recovered_arr: number;
+    penalty_fees_saved: number;
+    traditional_rate: number;
+    ai_rate: number;
+    benchmark_uplift: string;
+  };
 }

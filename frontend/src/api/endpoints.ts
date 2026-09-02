@@ -35,3 +35,13 @@ export const getRecoveryAttempts = async () => {
   const res = await api.get<RecoveryAttempt[]>("/recovery/attempts");
   return res.data;
 };
+
+export const getReviewQueue = async () => {
+  const res = await api.get<Transaction[]>("/recovery/review-queue");
+  return res.data;
+};
+
+export const resolveReview = async (transactionId: string, decision: "approve" | "reject", notes?: string) => {
+  const res = await api.post(`/recovery/review-queue/${transactionId}/resolve`, { decision, notes });
+  return res.data;
+};

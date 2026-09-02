@@ -1,24 +1,30 @@
 import { useEffect, useState } from "react";
-import { getLatestSummary, getRecoveryAttempts, runRecoveryBatch, injectPayments } from "../api/endpoints";
-import { BatchSummary, RecoveryAttempt } from "../types";
+import { getLatestSummary, getRecoveryAttempts, runRecoveryBatch, injectPayments, getReviewQueue, resolveReview } from "../api/endpoints";
+import { BatchSummary, RecoveryAttempt, Transaction } from "../types";
 import { RecoveryMetricsCard } from "../components/dashboard/RecoveryMetricsCard";
 import { RecoveryRateByReason } from "../components/dashboard/RecoveryRateByReason";
 import { KeyHighlights } from "../components/dashboard/KeyHighlights";
 import { AuditTrailTable } from "../components/dashboard/AuditTrailTable";
+import { ROIMetricsWidget } from "../components/dashboard/ROIMetricsWidget";
+import { PendingReviewsBanner } from "../components/dashboard/PendingReviewsBanner";
+import { HITLReviewModal } from "../components/dashboard/HITLReviewModal";
 import { Button } from "../components/ui/Button";
 
 export function Dashboard() {
   const [summary, setSummary] = useState<BatchSummary | null>(null);
   const [attempts, setAttempts] = useState<RecoveryAttempt[]>([]);
+  const [pendingReviews, setPendingReviews] = useState<Transaction[]>([]);
+  const [activeReviewTx, setActiveReviewTx] = useState<Transaction | null>(null);
   const [loading, setLoading] = useState(false);
   const [injecting, setInjecting] = useState(false);
   const [banner, setBanner] = useState<{ message: string; type: "success" | "info" } | null>(null);
 
   const loadData = async () => {
     try {
-      const [s, a] = await Promise.all([getLatestSummary(), getRecoveryAttempts()]);
+      const [s, a, q] = await Promise.all([getLatestSummary(), getRecoveryAttempts(), getReviewQueue()]);
       setSummary(s);
       setAttempts(a);
+      setPendingReviews(q || []);
     } catch (err) {
       console.error("Failed to load dashboard data", err);
     }
@@ -70,10 +76,30 @@ export function Dashboard() {
     }
   };
 
+  const handleResolveReview = async (transactionId: string, decision: "approve" | "reject", notes?: string) => {
+    try {
+      await resolveReview(transactionId, decision, notes);
+      setBanner({
+        type: "success",
+        message: decision === "approve"
+          ? "✅ Risk Officer approved payment recovery. Transaction recovered successfully!"
+          : "🚫 Risk Officer confirmed fraud block. Transaction permanently escalated.",
+      });
+      await loadData();
+    } catch (err) {
+      console.error("Failed to resolve review", err);
+      setBanner({
+        type: "info",
+        message: "Failed to submit review resolution.",
+      });
+    }
+  };
+
   const showEmptyState = summary === null;
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
@@ -107,6 +133,13 @@ export function Dashboard() {
         </div>
       </div>
 
+      {/* Pending HITL Alert Banner */}
+      <PendingReviewsBanner
+        pendingList={pendingReviews}
+        onOpenReview={(tx) => setActiveReviewTx(tx)}
+      />
+
+      {/* Flash Status Banner */}
       {banner && (
         <div
           className={`p-3 rounded-lg border text-sm flex items-center justify-between transition ${
@@ -143,14 +176,28 @@ export function Dashboard() {
         </div>
       ) : (
         <>
+          {/* Executive ARR & ROI Widget */}
+          <ROIMetricsWidget summary={summary} />
+
+          {/* Core Metrics & Key Highlights */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <RecoveryMetricsCard summary={summary} />
             <KeyHighlights summary={summary} />
           </div>
 
+          {/* Breakdown & Audit Trail */}
           <RecoveryRateByReason summary={summary} />
           <AuditTrailTable attempts={attempts} />
         </>
+      )}
+
+      {/* Human-in-the-Loop Review Modal */}
+      {activeReviewTx && (
+        <HITLReviewModal
+          transaction={activeReviewTx}
+          onClose={() => setActiveReviewTx(null)}
+          onResolve={handleResolveReview}
+        />
       )}
     </div>
   );
