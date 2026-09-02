@@ -11,6 +11,11 @@ export const getTransactionDetail = async (id: string) => {
   return res.data as { transaction: Transaction; recovery_attempts: RecoveryAttempt[] };
 };
 
+export const injectPayments = async (count: number = 10) => {
+  const res = await api.post(`/transactions/generate?count=${count}`);
+  return res.data as { status: string; inserted: number; transactions: Transaction[] };
+};
+
 export const getLatestSummary = async () => {
   const res = await api.get<BatchSummary>("/metrics/summary");
   return res.data;
