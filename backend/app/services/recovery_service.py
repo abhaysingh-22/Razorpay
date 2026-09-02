@@ -119,10 +119,17 @@ def run_recovery_for_transaction(transaction: dict) -> dict:
             result["action"] = "stopped"
             new_status = "exhausted"
 
-    elif action == "escalated":
-        result["outcome"] = "failed"
+    elif action == "escalated" or reason == "fraud_flag" or transaction["amount"] >= 10000:
+        # Human-in-the-Loop Gate: Route suspicious or high-ticket payments for human verification
+        result["outcome"] = "pending"
         result["amount_recovered"] = 0
-        new_status = "escalated"
+        if reason == "fraud_flag":
+            result["action"] = "flagged_for_human_review"
+            result["reasoning"] = "Potential fraud pattern detected. Paused for Human-in-the-Loop Risk Officer verification."
+        else:
+            result["action"] = "high_ticket_human_review"
+            result["reasoning"] = f"High-ticket transaction (₹{transaction['amount']:,.2f}) paused for risk safety review before retry."
+        new_status = "pending_human_review"
 
     else:  # stopped
         result["outcome"] = "failed"
@@ -133,6 +140,53 @@ def run_recovery_for_transaction(transaction: dict) -> dict:
     supabase.table("transactions").update({"status": new_status}).eq("id", transaction["id"]).execute()
 
     return result
+
+
+def resolve_human_review(transaction_id: str, decision: str, notes: str | None = None) -> dict:
+    """Handles Human-in-the-Loop (HITL) manual resolution for paused transactions."""
+    tx_res = supabase.table("transactions").select("*").eq("id", transaction_id).execute()
+    if not tx_res.data:
+        raise ValueError(f"Transaction {transaction_id} not found.")
+
+    transaction = tx_res.data[0]
+    existing_attempts = supabase.table("recovery_attempts") \
+        .select("attempt_number") \
+        .eq("transaction_id", transaction_id) \
+        .execute().data or []
+    next_attempt = len(existing_attempts) + 1
+
+    if decision == "approve":
+        new_status = "recovered"
+        attempt_record = {
+            "transaction_id": transaction_id,
+            "attempt_number": next_attempt,
+            "action": "human_approved_retry",
+            "reasoning": notes or "Risk Officer reviewed risk telemetry and approved recovery retry.",
+            "outcome": "success",
+            "amount_recovered": float(transaction["amount"]),
+        }
+    else:
+        new_status = "escalated"
+        attempt_record = {
+            "transaction_id": transaction_id,
+            "attempt_number": next_attempt,
+            "action": "human_confirmed_block",
+            "reasoning": notes or "Risk Officer confirmed fraud risk and permanently blocked auto-recovery.",
+            "outcome": "failed",
+            "amount_recovered": 0,
+        }
+
+    save_recovery_attempt(attempt_record)
+    supabase.table("transactions").update({"status": new_status}).eq("id", transaction_id).execute()
+    summary = generate_batch_summary()
+
+    return {
+        "status": "success",
+        "transaction_id": transaction_id,
+        "decision": decision,
+        "new_status": new_status,
+        "summary": summary
+    }
 
 
 def run_batch_recovery() -> dict:

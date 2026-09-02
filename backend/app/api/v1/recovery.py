@@ -1,8 +1,13 @@
-from fastapi import APIRouter
-from app.services.recovery_service import run_batch_recovery
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from app.services.recovery_service import run_batch_recovery, resolve_human_review
 from app.db.client import supabase
 
 router = APIRouter(prefix="/recovery", tags=["recovery"])
+
+class ResolveReviewRequest(BaseModel):
+    decision: str  # "approve" or "reject"
+    notes: str | None = None
 
 @router.post("/run")
 def trigger_batch_recovery():
@@ -23,6 +28,27 @@ def trigger_cron_recovery():
         "message": f"Processed {result['processed']} transactions in cron cycle",
         "data": result
     }
+
+@router.get("/review-queue")
+def get_pending_review_queue():
+    """Fetches transactions flagged for Human-in-the-Loop review."""
+    result = supabase.table("transactions") \
+        .select("*") \
+        .eq("status", "pending_human_review") \
+        .order("created_at", desc=True) \
+        .execute()
+    return result.data or []
+
+@router.post("/review-queue/{transaction_id}/resolve")
+def resolve_review_endpoint(transaction_id: str, payload: ResolveReviewRequest):
+    """Submits human verdict ('approve' or 'reject') for a flagged payment."""
+    if payload.decision not in ("approve", "reject"):
+        raise HTTPException(status_code=400, detail="Decision must be 'approve' or 'reject'")
+    try:
+        res = resolve_human_review(transaction_id, payload.decision, payload.notes)
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/attempts")
 def list_recovery_attempts(limit: int = 200):
