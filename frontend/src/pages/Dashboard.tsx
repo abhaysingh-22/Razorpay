@@ -8,6 +8,7 @@ import { AuditTrailTable } from "../components/dashboard/AuditTrailTable";
 import { ROIMetricsWidget } from "../components/dashboard/ROIMetricsWidget";
 import { PendingReviewsBanner } from "../components/dashboard/PendingReviewsBanner";
 import { HITLReviewModal } from "../components/dashboard/HITLReviewModal";
+import { UserGuideModal } from "../components/dashboard/UserGuideModal";
 import { Button } from "../components/ui/Button";
 
 export function Dashboard() {
@@ -15,6 +16,7 @@ export function Dashboard() {
   const [attempts, setAttempts] = useState<RecoveryAttempt[]>([]);
   const [pendingReviews, setPendingReviews] = useState<Transaction[]>([]);
   const [activeReviewTx, setActiveReviewTx] = useState<Transaction | null>(null);
+  const [showGuide, setShowGuide] = useState(false);
   const [loading, setLoading] = useState(false);
   const [injecting, setInjecting] = useState(false);
   const [banner, setBanner] = useState<{ message: string; type: "success" | "info" } | null>(null);
@@ -115,6 +117,14 @@ export function Dashboard() {
 
         <div className="flex items-center gap-3">
           <Button
+            variant="outline"
+            onClick={() => setShowGuide(true)}
+            className="hover:border-indigo-500 text-indigo-300 hover:text-indigo-200"
+          >
+            📖 Guide & How It Works
+          </Button>
+
+          <Button
             variant="secondary"
             onClick={handleInjectPayments}
             loading={injecting}
@@ -166,6 +176,9 @@ export function Dashboard() {
             Click <strong>"Inject 10 Payments"</strong> to create simulated payment failures, then click <strong>"Run Recovery Batch"</strong> to watch the AI recovery lifecycle in action.
           </p>
           <div className="flex justify-center gap-3 pt-2">
+            <Button variant="outline" onClick={() => setShowGuide(true)}>
+              📖 Read User Guide
+            </Button>
             <Button variant="secondary" onClick={handleInjectPayments} loading={injecting}>
               ⚡ Inject 10 Payments
             </Button>
@@ -198,6 +211,11 @@ export function Dashboard() {
           onClose={() => setActiveReviewTx(null)}
           onResolve={handleResolveReview}
         />
+      )}
+
+      {/* Interactive User Guide Modal */}
+      {showGuide && (
+        <UserGuideModal onClose={() => setShowGuide(false)} />
       )}
     </div>
   );
