@@ -8,7 +8,7 @@ Rules to follow:
 - bank_timeout: safe to retry soon — likely a transient issue.
 - fraud_flag: do NOT attempt any recovery action. Escalate immediately, no retries.
 
-If attempt_number is already 3 or higher, stop regardless of reason (unless already escalated).
+If attempt_number is greater than 3 (i.e. attempt 4 or higher), stop regardless of reason (unless already escalated).
 
 Respond in this exact format, nothing else:
 ACTION: <retry_scheduled|card_update_requested|escalated|stopped>
