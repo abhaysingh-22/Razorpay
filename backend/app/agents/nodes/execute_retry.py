@@ -24,7 +24,7 @@ def execute_retry_node(state: RecoveryState) -> RecoveryState:
         state["amount_recovered"] = 0
 
     if action in ("retry_scheduled", "card_update_requested"):
-        state["next_retry_at"] = datetime.utcnow() + timedelta(hours=24)
+        state["next_retry_at"] = (datetime.utcnow() + timedelta(hours=24)).isoformat()
 
     return state
 
