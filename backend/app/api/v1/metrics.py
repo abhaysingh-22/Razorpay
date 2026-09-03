@@ -1,5 +1,9 @@
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter
+# pyrefly: ignore [missing-import]
+from fastapi.responses import Response
 from app.db.client import supabase
+from app.services.pdf_service import generate_recovery_pdf_report
 
 router = APIRouter(prefix="/metrics", tags=["metrics"])
 
@@ -34,3 +38,15 @@ def get_summary_history(limit: int = 20):
         .limit(limit) \
         .execute()
     return result.data
+
+@router.get("/export-pdf")
+def export_recovery_pdf():
+    """Generates and downloads the executive recovery PDF report."""
+    pdf_bytes = generate_recovery_pdf_report()
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": "attachment; filename=RecoverAI_Executive_Report.pdf"
+        }
+    )

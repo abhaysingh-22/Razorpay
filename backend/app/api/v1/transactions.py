@@ -1,5 +1,7 @@
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, HTTPException
 import random
+# pyrefly: ignore [missing-import]
 from faker import Faker
 from app.db.client import supabase
 
