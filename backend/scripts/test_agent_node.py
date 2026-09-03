@@ -9,11 +9,9 @@ Usage:
 """
 
 import argparse
-import sys
 import time
 from app.agents.nodes.classify_reason import classify_reason_node
 from app.agents.nodes.decide_action import decide_action_node
-from app.agents.nodes.execute_retry import execute_retry_node
 from app.agents.graph import recovery_graph
 from app.services.recovery_service import run_batch_recovery
 

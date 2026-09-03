@@ -4,7 +4,6 @@ Tests end-to-end FastAPI routes, database interactions, and business pipelines.
 """
 
 # pyrefly: ignore [missing-import]
-import pytest
 
 
 def test_health_check(client):

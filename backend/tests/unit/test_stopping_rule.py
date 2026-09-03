@@ -4,7 +4,6 @@ Verifies that the LLM/Rule engine follows business safety rules.
 """
 
 # pyrefly: ignore [missing-import]
-import pytest
 from app.agents.nodes.decide_action import decide_action_node
 
 

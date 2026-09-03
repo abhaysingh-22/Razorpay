@@ -38,7 +38,7 @@ def simulate_time_passing(hours: int, dry_run: bool = False) -> int:
         return 0
 
     if not attempts:
-        print(f"ℹ️  No scheduled recovery attempts found with active next_retry_at.")
+        print("ℹ️  No scheduled recovery attempts found with active next_retry_at.")
         return 0
 
     updated_count = 0
