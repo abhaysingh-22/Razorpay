@@ -37,31 +37,28 @@ export function UserGuideModal({ onClose }: UserGuideModalProps) {
         <div className="flex border-b border-slate-800 bg-slate-950/40 px-5 pt-2 gap-2 text-xs font-semibold">
           <button
             onClick={() => setActiveTab("testing")}
-            className={`pb-2.5 px-3 border-b-2 transition cursor-pointer ${
-              activeTab === "testing"
+            className={`pb-2.5 px-3 border-b-2 transition cursor-pointer ${activeTab === "testing"
                 ? "border-indigo-500 text-indigo-400"
                 : "border-transparent text-slate-400 hover:text-slate-200"
-            }`}
+              }`}
           >
             🚀 How to Test (3-Minute Demo)
           </button>
           <button
             onClick={() => setActiveTab("glossary")}
-            className={`pb-2.5 px-3 border-b-2 transition cursor-pointer ${
-              activeTab === "glossary"
+            className={`pb-2.5 px-3 border-b-2 transition cursor-pointer ${activeTab === "glossary"
                 ? "border-indigo-500 text-indigo-400"
                 : "border-transparent text-slate-400 hover:text-slate-200"
-            }`}
+              }`}
           >
             💡 What Means What in UI
           </button>
           <button
             onClick={() => setActiveTab("architecture")}
-            className={`pb-2.5 px-3 border-b-2 transition cursor-pointer ${
-              activeTab === "architecture"
+            className={`pb-2.5 px-3 border-b-2 transition cursor-pointer ${activeTab === "architecture"
                 ? "border-indigo-500 text-indigo-400"
                 : "border-transparent text-slate-400 hover:text-slate-200"
-            }`}
+              }`}
           >
             ⚙️ How the Agent Works
           </button>
@@ -244,7 +241,7 @@ export function UserGuideModal({ onClose }: UserGuideModalProps) {
               </div>
 
               <div className="p-3.5 bg-slate-800/40 border border-slate-700/60 rounded-xl text-xs text-slate-300">
-                <strong>💡 Resetting the System:</strong> Whenever you want to wipe the database clean and start a brand-new demo run, simply visit <a href="http://localhost:8000/reset" target="_blank" rel="noreferrer" className="text-indigo-400 underline font-mono">http://localhost:8000/reset</a> in your browser.
+                <strong>💡 Resetting the System:</strong> Whenever you want to wipe the database clean and start a brand-new demo run, simply visit <a href="https://recoupai.onrender.com/reset" target="_blank" rel="noreferrer" className="text-indigo-400 underline font-mono">https://recoupai.onrender.com/reset</a> in your browser.
               </div>
             </div>
           )}
