@@ -3,8 +3,8 @@ fastapi==0.115.0
 uvicorn[standard]==0.32.0          # ASGI server to actually run FastAPI
 
 # --- Config & environment ---
-pydantic==2.9.2
-pydantic-settings==2.6.0           # for config.py — loads .env cleanly
+pydantic>=2.11.7,<3.0.0
+pydantic-settings>=2.6.0,<3.0.0
 python-dotenv==1.0.1
 
 # --- Agent orchestration ---
