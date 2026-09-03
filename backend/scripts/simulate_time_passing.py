@@ -16,11 +16,11 @@ from app.db.client import supabase
 def simulate_time_passing(hours: int, dry_run: bool = False) -> int:
     """
     Shifts all future retry schedules backwards by `hours` to trigger retry queues.
-    
+
     Args:
         hours: Number of hours to fast-forward time by.
         dry_run: If True, calculates changes without modifying the database.
-        
+
     Returns:
         Number of updated attempt records.
     """
@@ -30,7 +30,8 @@ def simulate_time_passing(hours: int, dry_run: bool = False) -> int:
             .select("id, transaction_id, attempt_number, next_retry_at")
             .not_.is_("next_retry_at", "null")
             .execute()
-            .data or []
+            .data
+            or []
         )
     except Exception as e:
         print(f"❌ Error fetching recovery attempts: {e}", file=sys.stderr)
@@ -62,8 +63,12 @@ def simulate_time_passing(hours: int, dry_run: bool = False) -> int:
                     {"next_retry_at": new_retry_time.isoformat()}
                 ).eq("id", attempt["id"]).execute()
 
-            status_indicator = "⚡ Due Now" if new_retry_time <= now else "⏳ Still Future"
-            print(f"  • Attempt {attempt['id'][:8]} (Tx: {attempt.get('transaction_id', '')[:8]}): {raw_retry[:19]} ➔ {new_retry_time.isoformat()[:19]} [{status_indicator}]")
+            status_indicator = (
+                "⚡ Due Now" if new_retry_time <= now else "⏳ Still Future"
+            )
+            print(
+                f"  • Attempt {attempt['id'][:8]} (Tx: {attempt.get('transaction_id', '')[:8]}): {raw_retry[:19]} ➔ {new_retry_time.isoformat()[:19]} [{status_indicator}]"
+            )
             updated_count += 1
         except Exception as err:
             print(f"  ⚠️ Failed to adjust attempt {attempt.get('id')}: {err}")
@@ -74,9 +79,22 @@ def simulate_time_passing(hours: int, dry_run: bool = False) -> int:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Fast-forward recovery retry schedules by N hours.")
-    parser.add_argument("--hours", "-H", type=int, default=24, help="Hours to shift retry times into the past (default: 24)")
-    parser.add_argument("--dry-run", "-d", action="store_true", help="Preview timestamp changes without writing to database")
+    parser = argparse.ArgumentParser(
+        description="Fast-forward recovery retry schedules by N hours."
+    )
+    parser.add_argument(
+        "--hours",
+        "-H",
+        type=int,
+        default=24,
+        help="Hours to shift retry times into the past (default: 24)",
+    )
+    parser.add_argument(
+        "--dry-run",
+        "-d",
+        action="store_true",
+        help="Preview timestamp changes without writing to database",
+    )
     args = parser.parse_args()
 
     simulate_time_passing(hours=args.hours, dry_run=args.dry_run)

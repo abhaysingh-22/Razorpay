@@ -18,7 +18,9 @@ from app.agents.graph import recovery_graph
 from app.services.recovery_service import run_batch_recovery
 
 
-def get_fresh_state(failure_reason: str, attempt_number: int = 1, amount: float = 499.0) -> dict:
+def get_fresh_state(
+    failure_reason: str, attempt_number: int = 1, amount: float = 499.0
+) -> dict:
     """Creates a fresh LangGraph state dictionary for testing."""
     return {
         "transaction_id": f"test-tx-{int(time.time())}",
@@ -54,7 +56,11 @@ def test_individual_nodes():
         state = decide_action_node(state)
 
         action = state.get("action")
-        is_pass = "✅ PASS" if action == expected_action else f"❌ FAIL (Expected {expected_action})"
+        is_pass = (
+            "✅ PASS"
+            if action == expected_action
+            else f"❌ FAIL (Expected {expected_action})"
+        )
 
         print(f"\nScenario: {label}")
         print(f"  • Input Reason:     {reason} (Attempt #{attempt})")
@@ -97,16 +103,28 @@ def test_batch_recovery_execution():
     summary = res.get("summary")
     if summary:
         print(f"• Recovery Rate:          {summary.get('recovery_rate')}%")
-        print(f"• Total Recovered:        ₹{summary.get('total_amount_recovered', 0):,.2f}")
+        print(
+            f"• Total Recovered:        ₹{summary.get('total_amount_recovered', 0):,.2f}"
+        )
         print(f"• Key Highlights:         {summary.get('key_highlights')}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Test and debug LangGraph recovery agent nodes.")
-    parser.add_argument("--nodes", action="store_true", help="Test individual nodes only")
-    parser.add_argument("--graph", action="store_true", help="Test compiled StateGraph only")
-    parser.add_argument("--batch", action="store_true", help="Run full batch recovery against database")
-    parser.add_argument("--all", "-a", action="store_true", help="Run all node, graph, and batch tests")
+    parser = argparse.ArgumentParser(
+        description="Test and debug LangGraph recovery agent nodes."
+    )
+    parser.add_argument(
+        "--nodes", action="store_true", help="Test individual nodes only"
+    )
+    parser.add_argument(
+        "--graph", action="store_true", help="Test compiled StateGraph only"
+    )
+    parser.add_argument(
+        "--batch", action="store_true", help="Run full batch recovery against database"
+    )
+    parser.add_argument(
+        "--all", "-a", action="store_true", help="Run all node, graph, and batch tests"
+    )
     args = parser.parse_args()
 
     # Default to running nodes & graph if no flag specified

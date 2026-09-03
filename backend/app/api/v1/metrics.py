@@ -1,5 +1,6 @@
 # pyrefly: ignore [missing-import]
 from fastapi import APIRouter
+
 # pyrefly: ignore [missing-import]
 from fastapi.responses import Response
 from app.db.client import supabase
@@ -7,14 +8,17 @@ from app.services.pdf_service import generate_recovery_pdf_report
 
 router = APIRouter(prefix="/metrics", tags=["metrics"])
 
+
 @router.get("/summary")
 def get_latest_summary():
     """Returns the most recent batch summary — the dashboard headline numbers."""
-    result = supabase.table("batch_summaries") \
-        .select("*") \
-        .order("created_at", desc=True) \
-        .limit(1) \
+    result = (
+        supabase.table("batch_summaries")
+        .select("*")
+        .order("created_at", desc=True)
+        .limit(1)
         .execute()
+    )
     if not result.data:
         return None
     summary = result.data[0]
@@ -29,15 +33,19 @@ def get_latest_summary():
     }
     return summary
 
+
 @router.get("/history")
 def get_summary_history(limit: int = 20):
     """All batch summaries over time — this powers your 'recovery maturing over runs' chart."""
-    result = supabase.table("batch_summaries") \
-        .select("*") \
-        .order("created_at", desc=True) \
-        .limit(limit) \
+    result = (
+        supabase.table("batch_summaries")
+        .select("*")
+        .order("created_at", desc=True)
+        .limit(limit)
         .execute()
+    )
     return result.data
+
 
 @router.get("/export-pdf")
 def export_recovery_pdf():
@@ -48,5 +56,5 @@ def export_recovery_pdf():
         media_type="application/pdf",
         headers={
             "Content-Disposition": "attachment; filename=RecoverAI_Executive_Report.pdf"
-        }
+        },
     )

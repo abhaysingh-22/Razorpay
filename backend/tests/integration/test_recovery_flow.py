@@ -2,6 +2,7 @@
 Integration Tests for Razorpay RecoverAI APIs and Recovery Flow.
 Tests end-to-end FastAPI routes, database interactions, and business pipelines.
 """
+
 # pyrefly: ignore [missing-import]
 import pytest
 
@@ -77,7 +78,10 @@ def test_human_review_queue_and_resolution(client):
 
         resolve_res = client.post(
             f"/api/v1/recovery/review-queue/{tx_id}/resolve",
-            json={"decision": "approve", "notes": "Automated integration test approval"}
+            json={
+                "decision": "approve",
+                "notes": "Automated integration test approval",
+            },
         )
         assert resolve_res.status_code == 200
         result = resolve_res.json()

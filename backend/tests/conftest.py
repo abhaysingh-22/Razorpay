@@ -1,14 +1,17 @@
 # pyrefly: ignore [missing-import]
 import pytest
+
 # pyrefly: ignore [missing-import]
 from fastapi.testclient import TestClient
 from app.main import app
+
 
 @pytest.fixture(scope="session")
 def client():
     """Shared FastAPI test client for integration tests."""
     with TestClient(app) as test_client:
         yield test_client
+
 
 @pytest.fixture
 def sample_transaction_state():
