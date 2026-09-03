@@ -15,19 +15,19 @@ def trigger_batch_recovery():
     result = run_batch_recovery()
     return result
 
-@router.post("/cron-batch")
-@router.get("/cron-batch")
-def trigger_cron_recovery():
-    """
-    Automated Cron Endpoint for cron-job.org or scheduled tasks.
-    Supports both POST and GET for simple webhook pinging every 15 minutes.
-    """
-    result = run_batch_recovery()
-    return {
-        "status": "success",
-        "message": f"Processed {result['processed']} transactions in cron cycle",
-        "data": result
-    }
+# @router.post("/cron-batch")
+# @router.get("/cron-batch")
+# def trigger_cron_recovery():
+#     """
+#     Automated Cron Endpoint for cron-job.org or scheduled tasks.
+#     Supports both POST and GET for simple webhook pinging every 15 minutes.
+#     """
+#     result = run_batch_recovery()
+#     return {
+#         "status": "success",
+#         "message": f"Processed {result['processed']} transactions in cron cycle",
+#         "data": result
+#     }
 
 @router.get("/review-queue")
 def get_pending_review_queue():
