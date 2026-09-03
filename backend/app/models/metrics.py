@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+
 
 class BatchSummaryOut(BaseModel):
     id: str
@@ -11,6 +11,7 @@ class BatchSummaryOut(BaseModel):
     key_highlights: list[str]
     exceptions: list[str]
     created_at: str
+
 
 class RunBatchResponse(BaseModel):
     processed: int

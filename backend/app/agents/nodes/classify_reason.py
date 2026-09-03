@@ -4,6 +4,7 @@ from app.services.llm_service import call_llm
 with open("app/agents/prompts/classify_reason.txt") as f:
     PROMPT_TEMPLATE = f.read()
 
+
 def classify_reason_node(state: RecoveryState) -> RecoveryState:
     prompt = PROMPT_TEMPLATE.format(failure_reason=state["failure_reason"])
     result = call_llm(

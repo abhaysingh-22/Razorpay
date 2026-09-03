@@ -4,6 +4,7 @@ from app.services.llm_service import call_llm
 with open("app/agents/prompts/decide_action.txt") as f:
     PROMPT_TEMPLATE = f.read()
 
+
 def decide_action_node(state: RecoveryState) -> RecoveryState:
     prompt = PROMPT_TEMPLATE.format(
         classified_reason=state["classified_reason"],

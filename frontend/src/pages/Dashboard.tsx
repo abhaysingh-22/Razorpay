@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getLatestSummary, getRecoveryAttempts, runRecoveryBatch, injectPayments, getReviewQueue, resolveReview } from "../api/endpoints";
+import { getLatestSummary, getRecoveryAttempts, runRecoveryBatch, injectPayments, getReviewQueue, resolveReview, downloadReportPDF } from "../api/endpoints";
 import { BatchSummary, RecoveryAttempt, Transaction } from "../types";
 import { RecoveryMetricsCard } from "../components/dashboard/RecoveryMetricsCard";
 import { RecoveryRateByReason } from "../components/dashboard/RecoveryRateByReason";
@@ -19,6 +19,7 @@ export function Dashboard() {
   const [showGuide, setShowGuide] = useState(false);
   const [loading, setLoading] = useState(false);
   const [injecting, setInjecting] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [banner, setBanner] = useState<{ message: string; type: "success" | "info" } | null>(null);
 
   const loadData = async () => {
@@ -97,6 +98,26 @@ export function Dashboard() {
     }
   };
 
+  const handleExportPDF = async () => {
+    setExporting(true);
+    try {
+      await downloadReportPDF();
+      setBanner({
+        type: "success",
+        message: "📄 Executive PDF Report generated & downloaded successfully!",
+      });
+    } catch (err) {
+      console.error("Failed to export PDF", err);
+      setBanner({
+        type: "info",
+        message: "Failed to generate PDF report.",
+      });
+    } finally {
+      setExporting(false);
+      setTimeout(() => setBanner(null), 6000);
+    }
+  };
+
   const showEmptyState = summary === null;
 
   return (
@@ -118,10 +139,19 @@ export function Dashboard() {
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
+            onClick={handleExportPDF}
+            loading={exporting}
+            className="hover:border-slate-600 text-slate-300 hover:text-white"
+          >
+            📥 Export Report
+          </Button>
+
+          <Button
+            variant="outline"
             onClick={() => setShowGuide(true)}
             className="hover:border-indigo-500 text-indigo-300 hover:text-indigo-200"
           >
-            📖 Guide & How It Works
+            📖 Guide
           </Button>
 
           <Button
@@ -152,11 +182,10 @@ export function Dashboard() {
       {/* Flash Status Banner */}
       {banner && (
         <div
-          className={`p-3 rounded-lg border text-sm flex items-center justify-between transition ${
-            banner.type === "success"
-              ? "bg-emerald-950/40 border-emerald-800/60 text-emerald-300"
-              : "bg-slate-800 border-slate-700 text-slate-300"
-          }`}
+          className={`p-3 rounded-lg border text-sm flex items-center justify-between transition ${banner.type === "success"
+            ? "bg-emerald-950/40 border-emerald-800/60 text-emerald-300"
+            : "bg-slate-800 border-slate-700 text-slate-300"
+            }`}
         >
           <span>{banner.message}</span>
           <button

@@ -1,5 +1,6 @@
 from app.db.client import supabase
 
+
 def generate_batch_summary(results: list[dict] | None = None) -> dict:
     transactions = supabase.table("transactions").select("*").execute().data or []
     attempts = (
@@ -7,7 +8,8 @@ def generate_batch_summary(results: list[dict] | None = None) -> dict:
         .select("*")
         .order("created_at", desc=True)
         .execute()
-        .data or []
+        .data
+        or []
     )
 
     latest_attempts = {}
@@ -28,12 +30,20 @@ def generate_batch_summary(results: list[dict] | None = None) -> dict:
         if t["status"] == "recovered":
             breakdown[reason]["recovered"] += t["amount"]
 
-    recovery_rate = round((total_recovered / total_amount_at_risk) * 100, 1) if total_amount_at_risk else 0
+    recovery_rate = (
+        round((total_recovered / total_amount_at_risk) * 100, 1)
+        if total_amount_at_risk
+        else 0
+    )
 
     recovered_count = sum(1 for t in transactions if t["status"] == "recovered")
     escalated_count = sum(1 for t in transactions if t["status"] == "escalated")
     exhausted_count = sum(1 for t in transactions if t["status"] == "exhausted")
-    pending_count = sum(1 for t in transactions if t["status"] in ("retry_scheduled", "awaiting_customer_action", "failed"))
+    pending_count = sum(
+        1
+        for t in transactions
+        if t["status"] in ("retry_scheduled", "awaiting_customer_action", "failed")
+    )
 
     highlights = [
         f"₹{total_recovered:,.0f} recovered out of ₹{total_amount_at_risk:,.0f} at risk ({recovery_rate}%)",
@@ -44,13 +54,16 @@ def generate_batch_summary(results: list[dict] | None = None) -> dict:
 
     exceptions = [
         f"Transaction {a['transaction_id'][:8]}: stopped after {a['attempt_number']} attempts, reason: {a['reasoning']}"
-        for a in latest_attempts.values() if a.get("action_taken") == "stopped" or a.get("action_taken") == "escalated"
+        for a in latest_attempts.values()
+        if a.get("action_taken") == "stopped" or a.get("action_taken") == "escalated"
     ]
 
     # Executive ROI & ARR Metrics
     recovered_arr = round(total_recovered * 12, 2)
     prevented_retries_count = (exhausted_count * 2) + (escalated_count * 3)
-    penalty_fees_saved = max(prevented_retries_count * 20, 100)  # ₹20 per prevented bounce fee
+    penalty_fees_saved = max(
+        prevented_retries_count * 20, 100
+    )  # ₹20 per prevented bounce fee
     uplift = round(recovery_rate / 22.0, 1) if recovery_rate > 0 else 1.0
 
     roi_metrics = {

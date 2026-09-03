@@ -2,6 +2,7 @@ from datetime import datetime
 from app.db.client import supabase
 from app.agents.state import RecoveryState
 
+
 def save_recovery_attempt(state: RecoveryState) -> dict:
     next_retry = state.get("next_retry_at")
     if isinstance(next_retry, datetime):
@@ -18,4 +19,3 @@ def save_recovery_attempt(state: RecoveryState) -> dict:
     }
     result = supabase.table("recovery_attempts").insert(record).execute()
     return result.data[0]
-

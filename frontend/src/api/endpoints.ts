@@ -45,3 +45,15 @@ export const resolveReview = async (transactionId: string, decision: "approve" |
   const res = await api.post(`/recovery/review-queue/${transactionId}/resolve`, { decision, notes });
   return res.data;
 };
+
+export const downloadReportPDF = async () => {
+  const res = await api.get("/metrics/export-pdf", { responseType: "blob" });
+  const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `RecoverAI_Executive_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};

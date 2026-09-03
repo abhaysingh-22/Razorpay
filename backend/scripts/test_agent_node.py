@@ -1,15 +1,30 @@
+"""
+CLI Agent Diagnostic & Node Testing Harness.
+Tests individual LangGraph nodes and end-to-end state execution.
+
+Usage:
+    python -m scripts.test_agent_node --all
+    python -m scripts.test_agent_node --nodes
+    python -m scripts.test_agent_node --graph
+"""
+
+import argparse
+import time
 from app.agents.nodes.classify_reason import classify_reason_node
 from app.agents.nodes.decide_action import decide_action_node
-from app.agents.nodes.execute_retry import execute_retry_node
 from app.agents.graph import recovery_graph
 from app.services.recovery_service import run_batch_recovery
 
-def fresh_state(failure_reason, attempt_number=1):
+
+def get_fresh_state(
+    failure_reason: str, attempt_number: int = 1, amount: float = 499.0
+) -> dict:
+    """Creates a fresh LangGraph state dictionary for testing."""
     return {
-        "transaction_id": "test-1",
-        "amount": 499,
+        "transaction_id": f"test-tx-{int(time.time())}",
+        "amount": amount,
         "failure_reason": failure_reason,
-        "customer_id": "cust-1",
+        "customer_id": "cust-test-user-01",
         "attempt_number": attempt_number,
         "classified_reason": None,
         "action": None,
@@ -19,55 +34,112 @@ def fresh_state(failure_reason, attempt_number=1):
         "amount_recovered": 0,
     }
 
-def run_case(label, failure_reason, attempt_number=1):
-    print(f"\n--- {label} ---")
-    state = fresh_state(failure_reason, attempt_number)
-    state = classify_reason_node(state)
-    state = decide_action_node(state)
-    print("classified_reason:", state["classified_reason"])
-    print("action:", state["action"])
-    print("reasoning:", state["reasoning"])
-    print("should_stop:", state["should_stop"])
-    return state
 
-# if __name__ == "__main__":
-#     run_case("Insufficient funds, attempt 1", "insufficient_funds", attempt_number=1)
-#     run_case("Fraud flag, attempt 1", "fraud_flag", attempt_number=1)
-#     run_case("Expired card, attempt 1", "expired_card", attempt_number=1)
-#     run_case("Bank timeout, attempt 4 (should stop)", "bank_timeout", attempt_number=4)
+def test_individual_nodes():
+    """Tests classify_reason and decide_action nodes across standard failure modes."""
+    print("\n" + "=" * 65)
+    print("🧪 1. TESTING INDIVIDUAL AGENT NODES (Classify & Decide)")
+    print("=" * 65)
 
-def run_full_case(label, failure_reason, attempt_number=1):
-    state = fresh_state(failure_reason, attempt_number)
-    state = classify_reason_node(state)
-    state = decide_action_node(state)
-    state = execute_retry_node(state)
-    print(f"\n--- {label} ---")
-    print("action:", state["action"], "| outcome:", state["outcome"])
+    test_scenarios = [
+        ("Insufficient Funds (Run 1)", "insufficient_funds", 1, "retry_scheduled"),
+        ("Fraud Flag (Immediate Block)", "fraud_flag", 1, "escalated"),
+        ("Expired Card (Customer Notice)", "expired_card", 1, "card_update_requested"),
+        ("Bank Timeout (Attempt 4 Stopping Rule)", "bank_timeout", 4, "stopped"),
+    ]
 
-def run_graph_case(label, failure_reason, attempt_number=1):
-    state = fresh_state(failure_reason, attempt_number)
-    result = recovery_graph.invoke(state)
-    print(f"\n--- GRAPH: {label} ---")
-    print("action:", result["action"], "| outcome:", result["outcome"])
-    
+    for label, reason, attempt, expected_action in test_scenarios:
+        state = get_fresh_state(reason, attempt)
+        state = classify_reason_node(state)
+        state = decide_action_node(state)
+
+        action = state.get("action")
+        is_pass = (
+            "✅ PASS"
+            if action == expected_action
+            else f"❌ FAIL (Expected {expected_action})"
+        )
+
+        print(f"\nScenario: {label}")
+        print(f"  • Input Reason:     {reason} (Attempt #{attempt})")
+        print(f"  • Classified Reason: {state.get('classified_reason')}")
+        print(f"  • Decided Action:    {action} [{is_pass}]")
+        print(f"  • Agent Reasoning:   {state.get('reasoning')}")
+
+
+def test_graph_execution():
+    """Tests the compiled LangGraph StateGraph invocation."""
+    print("\n" + "=" * 65)
+    print("⚡ 2. TESTING COMPILED LANGGRAPH STATE-MACHINE INVOCATION")
+    print("=" * 65)
+
+    graph_scenarios = [
+        ("Graph: Insufficient Funds", "insufficient_funds", 1),
+        ("Graph: Expired Card", "expired_card", 1),
+        ("Graph: Fraud Escalation", "fraud_flag", 1),
+        ("Graph: Retry Limit Exhausted", "bank_timeout", 4),
+    ]
+
+    for label, reason, attempt in graph_scenarios:
+        state = get_fresh_state(reason, attempt)
+        result = recovery_graph.invoke(state)
+
+        print(f"\n{label}:")
+        print(f"  • Action:   {result.get('action')}")
+        print(f"  • Outcome:  {result.get('outcome')}")
+        print(f"  • Stop:     {result.get('should_stop')}")
+
+
+def test_batch_recovery_execution():
+    """Runs a full recovery batch against the active database."""
+    print("\n" + "=" * 65)
+    print("📦 3. TESTING FULL BATCH RECOVERY PIPELINE")
+    print("=" * 65)
+
+    res = run_batch_recovery()
+    print(f"• Processed Transactions: {res.get('processed')}")
+    summary = res.get("summary")
+    if summary:
+        print(f"• Recovery Rate:          {summary.get('recovery_rate')}%")
+        print(
+            f"• Total Recovered:        ₹{summary.get('total_amount_recovered', 0):,.2f}"
+        )
+        print(f"• Key Highlights:         {summary.get('key_highlights')}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Test and debug LangGraph recovery agent nodes."
+    )
+    parser.add_argument(
+        "--nodes", action="store_true", help="Test individual nodes only"
+    )
+    parser.add_argument(
+        "--graph", action="store_true", help="Test compiled StateGraph only"
+    )
+    parser.add_argument(
+        "--batch", action="store_true", help="Run full batch recovery against database"
+    )
+    parser.add_argument(
+        "--all", "-a", action="store_true", help="Run all node, graph, and batch tests"
+    )
+    args = parser.parse_args()
+
+    # Default to running nodes & graph if no flag specified
+    if not (args.nodes or args.graph or args.batch or args.all):
+        test_individual_nodes()
+        test_graph_execution()
+        return
+
+    if args.nodes or args.all:
+        test_individual_nodes()
+
+    if args.graph or args.all:
+        test_graph_execution()
+
+    if args.batch or args.all:
+        test_batch_recovery_execution()
+
 
 if __name__ == "__main__":
-    run_case("Insufficient funds, attempt 1", "insufficient_funds", attempt_number=1)
-    run_case("Fraud flag, attempt 1", "fraud_flag", attempt_number=1)
-    run_case("Expired card, attempt 1", "expired_card", attempt_number=1)
-    run_case("Bank timeout, attempt 4 (should stop)", "bank_timeout", attempt_number=4)
-
-    run_full_case("Full flow — insufficient funds", "insufficient_funds")
-    run_full_case("Full flow — expired card", "expired_card")
-    run_full_case("Full flow — fraud flag", "fraud_flag")
-    run_full_case("Full flow — stopped case", "bank_timeout", attempt_number=4)
-    
-    run_graph_case("Graph — insufficient funds", "insufficient_funds")
-    run_graph_case("Graph — expired card", "expired_card")
-    run_graph_case("Graph — fraud flag", "fraud_flag")
-    run_graph_case("Graph — stopped case", "bank_timeout", attempt_number=4)
-    
-    print("\n--- RUNNING FULL BATCH ---")
-    batch_result = run_batch_recovery()
-    print("Processed:", batch_result["processed"])
-    print("Summary:", batch_result["summary"])
+    main()
