@@ -105,9 +105,9 @@ export function Dashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
-            AI Revenue Recovery
+            RecoupAI
             <span className="text-xs bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full font-medium">
-              LangGraph Engine
+              Payment Recovery Engine
             </span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
