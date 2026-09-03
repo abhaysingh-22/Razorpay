@@ -11,7 +11,7 @@ app = FastAPI(title="AI Revenue Recovery")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # tighten this to your frontend URL before final submission
+    allow_origins=["*"], 
     allow_methods=["*"],
     allow_headers=["*"],
 )
