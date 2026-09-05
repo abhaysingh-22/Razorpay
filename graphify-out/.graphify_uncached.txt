@@ -1,0 +1,11 @@
+/Users/abhaysingh22_/Developer/Razorpay/backend/app/agents/prompts/classify_reason.txt
+/Users/abhaysingh22_/Developer/Razorpay/backend/app/agents/prompts/decide_action.txt
+/Users/abhaysingh22_/Developer/Razorpay/backend/cmd.txt
+/Users/abhaysingh22_/Developer/Razorpay/backend/requirements.txt
+/Users/abhaysingh22_/Developer/Razorpay/frontend/README.md
+/Users/abhaysingh22_/Developer/Razorpay/frontend/index.html
+/Users/abhaysingh22_/Developer/Razorpay/frontend/public/favicon.svg
+/Users/abhaysingh22_/Developer/Razorpay/frontend/public/icons.svg
+/Users/abhaysingh22_/Developer/Razorpay/frontend/src/assets/hero.png
+/Users/abhaysingh22_/Developer/Razorpay/frontend/src/assets/react.svg
+/Users/abhaysingh22_/Developer/Razorpay/frontend/src/assets/vite.svg
