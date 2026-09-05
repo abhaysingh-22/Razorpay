@@ -1,4 +1,4 @@
-# 🛡️ RecoverAI — Autonomous AI Revenue Recovery Engine
+# 🛡️ RecoupAI — Autonomous AI Revenue Recovery Engine
 
 > **Intelligent, Agentic Payment Failure Recovery with Temporal Retries & Human-in-the-Loop Safeguards for Modern Fintech & Subscription Businesses.**
 
@@ -19,8 +19,8 @@ Today, businesses handle payment failures in two broken ways:
 1. **Passive Acceptance:** Giving up on failed transactions, losing tens of thousands in ARR.
 2. **Dumb / Blind Retries:** Hammering card networks with brute-force scripts, causing **₹15–₹25 penalty fees per bounce**, irritating customers, and achieving a meager **~22% industry benchmark recovery rate**.
 
-### 💡 The Solution: RecoverAI
-**RecoverAI** replaces dumb retry scripts with an **autonomous LangGraph state machine**. It classifies raw gateway failure telemetry, applies smart temporal retry policies based on transaction physics and salary cycles, executes human-in-the-loop approvals for high-risk payments, and delivers an industry-leading **~75% recovery rate (a 3.2x uplift)** while eliminating unnecessary bounce fees.
+### 💡 The Solution: RecoupAI
+**RecoupAI** replaces dumb retry scripts with an **autonomous LangGraph state machine**. It classifies raw gateway failure telemetry, applies smart temporal retry policies based on transaction physics and salary cycles, executes human-in-the-loop approvals for high-risk payments, and delivers an industry-leading **~75% recovery rate (a 3.2x uplift)** while eliminating unnecessary bounce fees.
 
 ---
 
