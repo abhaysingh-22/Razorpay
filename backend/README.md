@@ -1,6 +1,6 @@
-# 🧠 RecoverAI — Backend Service
+# 🧠 RecoupAI — Backend Service
 
-The core intelligence and recovery orchestration engine for **RecoverAI**. Built with **FastAPI**, **LangGraph StateGraph**, **Groq (Llama-3)**, and **Supabase (PostgreSQL)** to autonomously analyze payment failure telemetry, decide optimal recovery actions, and manage multi-attempt temporal resolution with Human-in-the-Loop safeguards.
+The core intelligence and recovery orchestration engine for **RecoupAI**. Built with **FastAPI**, **LangGraph StateGraph**, **Groq (Llama-3)**, and **Supabase (PostgreSQL)** to autonomously analyze payment failure telemetry, decide optimal recovery actions, and manage multi-attempt temporal resolution with Human-in-the-Loop safeguards.
 
 ---
 
