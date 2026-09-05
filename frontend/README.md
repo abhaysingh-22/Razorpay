@@ -1,6 +1,6 @@
-# 🎨 RecoverAI — Frontend Dashboard
+# 🎨 RecoupAI — Frontend Dashboard
 
-A modern, responsive merchant dashboard for **RecoverAI**. Built with **React 19**, **TypeScript**, **Vite**, **TailwindCSS v4**, and **Recharts** to deliver real-time recovery analytics, interactive Human-in-the-Loop reviews, multi-run batch triggers, and instant executive PDF exports.
+A modern, responsive merchant dashboard for **RecoupAI**. Built with **React 19**, **TypeScript**, **Vite**, **TailwindCSS v4**, and **Recharts** to deliver real-time recovery analytics, interactive Human-in-the-Loop reviews, multi-run batch triggers, and instant executive PDF exports.
 
 ---
 
@@ -67,7 +67,7 @@ frontend/src/
 
 ### 1. Prerequisites
 - Node.js 18+ (Node 20+ recommended)
-- Running RecoverAI Backend API (locally on port `8000` or deployed on Render)
+- Running RecoupAI Backend API (locally on port `8000` or deployed on Render)
 
 ### 2. Environment Configuration
 Create a `.env` file in the `frontend/` directory:
