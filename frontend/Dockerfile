@@ -13,7 +13,7 @@ RUN npm ci
 COPY . .
 
 # Vite environment variables are bundled at build time
-ARG VITE_API_URL=http://localhost:8000/api/v1
+ARG VITE_API_URL=https://recoupai.onrender.com/api/v1
 ENV VITE_API_URL=$VITE_API_URL
 
 # Build the production bundle
